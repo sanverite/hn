@@ -29,6 +29,17 @@ func New() *Client {
 	}
 }
 
+// NewWithBaseURL creates a Client pointed at a custom base URL.
+// Used in tests to inject a fake server.
+func NewWithBaseURL(baseURL string) *Client {
+	return &Client{
+		http: &http.Client{
+			Timeout: 10 * time.Second,
+		},
+		baseURL: baseURL,
+	}
+}
+
 // Story represents a single HN story.
 type Story struct {
 	ID    int    `json:"id"`
