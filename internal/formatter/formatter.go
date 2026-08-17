@@ -21,6 +21,7 @@ func PrintStories(w io.Writer, stories []api.Story) {
 		}
 
 		fmt.Fprintf(w, "%2d. %s\n", i+1, s.Title)
+		fmt.Fprintf(w, "ID: %d\n", s.ID)
 		fmt.Fprintf(w, "		%d points by %s on %s\n", s.Score, s.By, posted)
 		fmt.Fprintf(w, "%s\n\n", url)
 	}

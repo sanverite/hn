@@ -96,7 +96,7 @@ func (c *Client) fetchStories(ctx context.Context, ids []int) ([]Story, error) {
 	stories := make([]Story, 0, len(ids))
 
 	for _, id := range ids {
-		story, err := c.fetchStory(ctx, id)
+		story, err := c.FetchStory(ctx, id)
 		if err != nil {
 			return nil, fmt.Errorf("fetching story %d: %w", id, err)
 		}
@@ -107,7 +107,7 @@ func (c *Client) fetchStories(ctx context.Context, ids []int) ([]Story, error) {
 }
 
 // fetchStory retrieves a single Story by ID.
-func (c *Client) fetchStory(ctx context.Context, id int) (Story, error) {
+func (c *Client) FetchStory(ctx context.Context, id int) (Story, error) {
 	url := fmt.Sprintf("%s/item/%d.json", c.baseURL, id)
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
