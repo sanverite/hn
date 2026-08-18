@@ -7,12 +7,18 @@ import (
 )
 
 // Open opens URL in the default system browser.
-// It handles MacOS, Linux, and Windows.
 func Open(url string) error {
+	return OpenWithOS(url, runtime.GOOS)
+}
+
+// OpenWithOS opens url using the browser command for the
+// given OS. Separated from Open so tests can inject a fake
+// OS without actually running a browser.
+func OpenWithOS(url string, goos string) error {
 	var cmd string
 	var args []string
 
-	switch runtime.GOOS {
+	switch goos {
 	case "darwin":
 		cmd = "open"
 		args = []string{url}
