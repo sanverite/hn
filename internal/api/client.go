@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"net/http"
 	"time"
+
+	"golang.org/x/sync/errgroup"
 )
 
 const baseURL = "https://hacker-news.firebaseio.com/v0"
@@ -93,14 +95,63 @@ func (c *Client) fetchIDs(ctx context.Context, feed string) ([]int, error) {
 
 // fetchStories retrieves full story details for a list of IDs.
 func (c *Client) fetchStories(ctx context.Context, ids []int) ([]Story, error) {
-	stories := make([]Story, 0, len(ids))
+	// Make a slice upfront with exact capacity we need.
+	// This is important - we're going to write into specific indexes
+	// from multiple goroutines. Pre-allocating means no slice grows,
+	// no hidden allocations, and each goroutine writes to its own index
+	// so there's no data race.
+	stories := make([]Story, len(ids))
 
-	for _, id := range ids {
-		story, err := c.FetchStory(ctx, id)
-		if err != nil {
-			return nil, fmt.Errorf("fetching story %d: %w", id, err)
-		}
-		stories = append(stories, story)
+	// Buffered channel with capacity 5 acts as a semaphore.
+	// Only 5 goroutines can hold a token at once.
+	// The rest block on the send until a slot opens up.
+	sem := make(chan struct{}, 5)
+
+	// errgroup gives us two things:
+	// - g.Go() launches a goroutine and tracks it
+	// - g.Wait() blocks until all goroutines finish and returns
+	// 	 the first non-nil error any of them returned
+	//
+	// ctx passed into errgroup.WithContext means: if any goroutine
+	// fails, the context is cancelled and all other goroutines
+	// should stop early when they next check ctx.
+	g, ctx := errgroup.WithContext(ctx)
+
+	for i, id := range ids {
+		g.Go(func() error {
+			// Acquire a token - blocks if 5 goroutines are already running.
+			// struct{} is used because it takes zero bytes of memory.
+			// We only care about the slot, not the value.
+			sem <- struct{}{}
+
+			// Release the token when this goroutine finishes,
+			// regardless of success of failure.
+			// defer runs even if we return an error.
+			defer func() { <-sem }()
+
+			// Each goroutine fetches one story.
+			// If ctx is already cancelled (another goroutine failed),
+			// FetchStory returns immediately with a context error.
+			story, err := c.FetchStory(ctx, id)
+			if err != nil {
+				// Wrap with story ID so we know which one failed
+				return fmt.Errorf("story %d: %w", id, err)
+			}
+
+			// Write to a specific index - no two goroutines
+			// ever write to the same index, so this is safe
+			// without a mutex.
+			stories[i] = story
+			return nil
+		})
+	}
+
+	// Wait blocks until every g.Go goroutine has returned.
+	// If any returned a non-nil error, Wait returns that error.
+	// The other goroutines are not killed - they run to completion,
+	// but their results are discarded since we're returning an error.
+	if err := g.Wait(); err != nil {
+		return nil, fmt.Errorf("fetching stories: %w", err)
 	}
 
 	return stories, nil
