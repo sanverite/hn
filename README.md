@@ -1,7 +1,7 @@
 # hn
 
-A fast Hacker News client for your terminal. Fetch top stories,
-Ask HN, and open links in your browser without leaving the command line.
+A fast Hacker News client for your terminal. Fetch top, best, and new
+stories, then open links in your browser without leaving the command line.
 
 ## Installation
 
@@ -15,11 +15,23 @@ make build
 ## Usage
 
 ```bash
-# Fetch top 10 stories
+# Top stories (default 10)
 ./bin/hn top
 
-# Fetch top 30 stories
+# Top 30 stories
 ./bin/hn top --limit 30
+
+# Best stories
+./bin/hn best
+
+# Best 20 stories
+./bin/hn best --limit 20
+
+# New stories
+./bin/hn new
+
+# New 15 stories
+./bin/hn new --limit 15
 
 # Open a story in your browser by ID
 ./bin/hn open 43291234

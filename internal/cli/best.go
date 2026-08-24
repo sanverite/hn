@@ -20,7 +20,7 @@ var bestCmd = &cobra.Command{
 }
 
 func init() {
-	bestCmd.Flags().IntVarP(&bestLimit, "limit", "1", 10, "number of stories to fetch")
+	bestCmd.Flags().IntVarP(&bestLimit, "limit", "l", 10, "number of stories to fetch")
 	rootCmd.AddCommand(bestCmd)
 }
 

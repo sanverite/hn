@@ -20,13 +20,13 @@ var newCmd = &cobra.Command{
 }
 
 func init() {
-	newCmd.Flags().IntVarP(&newLimit, "limit", "1", 10, "number of stories to fetch")
+	newCmd.Flags().IntVarP(&newLimit, "limit", "l", 10, "number of stories to fetch")
 	rootCmd.AddCommand(newCmd)
 }
 
 func runNew(cmd *cobra.Command, args []string) error {
 	if newLimit < 1 || newLimit > 500 {
-		return fmt.Errorf("limit must be between 1 and 500, got %d: ", newLimit)
+		return fmt.Errorf("limit must be between 1 and 500, got: %d", newLimit)
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
