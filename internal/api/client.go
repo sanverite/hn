@@ -53,8 +53,8 @@ type Story struct {
 }
 
 // TopStories returns the top n story IDs from HN.
-func (c *Client) TopStories(ctx context.Context, limit int) ([]Story, error) {
-	ids, err := c.fetchIDs(ctx, "topstories")
+func (c *Client) TopStories(ctx context.Context, feed string, limit int) ([]Story, error) {
+	ids, err := c.fetchIDs(ctx, feed)
 	if err != nil {
 		return nil, fmt.Errorf("fetching top stories: %w", err)
 	}

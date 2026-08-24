@@ -36,7 +36,7 @@ func TestTopStories(t *testing.T) {
 
 	client := api.NewWithBaseURL(server.URL + "/v0")
 
-	got, err := client.TopStories(context.Background(), 2)
+	got, err := client.TopStories(context.Background(), "topstories", 2)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -69,7 +69,7 @@ func TestTopStoriesLimitCapped(t *testing.T) {
 	client := api.NewWithBaseURL(server.URL + "/v0")
 
 	// Request 10 but only 1 exists — should return 1, not error
-	got, err := client.TopStories(context.Background(), 10)
+	got, err := client.TopStories(context.Background(), "topstories", 10)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}

@@ -34,7 +34,7 @@ func runTop(cmd *cobra.Command, args []string) error {
 
 	client := api.New()
 
-	stories, err := client.TopStories(ctx, limit)
+	stories, err := client.TopStories(ctx, "topstories", limit)
 	if err != nil {
 		return fmt.Errorf("fetching stories: %w", err)
 	}
