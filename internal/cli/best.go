@@ -26,7 +26,7 @@ func init() {
 
 func runBest(cmd *cobra.Command, args []string) error {
 	if bestLimit < 1 || bestLimit > 500 {
-		return fmt.Errorf("limit must be between 1 and 500, got %d", bestLimit)
+		return fmt.Errorf("limit must be between 1 and 500, got: %d", bestLimit)
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
@@ -36,7 +36,7 @@ func runBest(cmd *cobra.Command, args []string) error {
 
 	stories, err := client.TopStories(ctx, "beststories", bestLimit)
 	if err != nil {
-		return fmt.Errorf("iii fetching stories: %w", err)
+		return fmt.Errorf("fetching stories: %w", err)
 	}
 
 	formatter.PrintStories(os.Stdout, stories)
